@@ -80,7 +80,12 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fa-solid fa-school text-gray-400"></i>
                             </div>
-                            <input type="text" id="className" required placeholder="VD: 10A1" class="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow">
+                            <select id="className" required onchange="updateTeacherName()" class="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow appearance-none bg-white">
+                                <option value="" disabled selected>-- Chọn lớp --</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-sm"></i>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -161,8 +166,8 @@
 
     <!-- Inject Script URL từ Backend -->
     <script>
-        // Lấy URL Web App do GAS tiêm vào qua template.evaluate()
-        const SCRIPT_URL = '<?= scriptUrl ?>'; 
+        // URL Web App
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYyml1LVg71KOUbJ5GBkUbewfm4O4rXNYfWC3wq37nXjx5f1W5dG3XvixnUEPxpU-q/exec'; 
     </script>
 
     <script>
@@ -177,6 +182,75 @@
 
         let isAdmin = false;
         let adminPassword = sessionStorage.getItem('adminPassword') || '';
+
+        // Danh sách Lớp và Giáo viên chủ nhiệm
+        const classData = {
+            "6A1": "Nguyễn Thị Liên",
+            "6A2": "Nguyễn Ngọc Điệp",
+            "6A3": "Trần Minh Hiếu",
+            "6A4": "Nguyễn Thị Mộng Trinh",
+            "6A5": "Nguyễn Thị Hiền",
+            "6A6": "Phạm Quốc Chung",
+            "6A7": "Nguyễn Thị Gấm",
+            "6A8": "Đặng Quỳnh Trang",
+            "6A9": "Nguyễn Thị Hồng Thắm",
+            "6A10": "Cao Thị Dung",
+            "7A1": "Nguyễn Huỳnh Mỹ Uyên",
+            "7A2": "Phạm Ngọc Châu",
+            "7A3": "Nguyễn Thị Kim Đào",
+            "7A4": "Đào Ngọc Lan",
+            "7A5": "Bùi Thị Thêm",
+            "7A6": "Hà Nhân Triều",
+            "7A7": "Huỳnh Thị Thùy Dương",
+            "7A8": "Phạm Thị Ngọc Hương",
+            "7A9": "Huỳnh Ngọc Anh",
+            "7A10": "Nguyễn Thị Sáu",
+            "8A1": "Nguyễn Thị Hoá",
+            "8A2": "Phạm Thị Triều Dương",
+            "8A3": "Nguyễn Thị Cẩm Vân",
+            "8A4": "Vũ Thị Duyên",
+            "8A5": "Nguyễn Ngọc Hoà",
+            "8A6": "Nguyễn Thị May",
+            "8A7": "Nguyễn Cao Cường",
+            "8A8": "Nguyễn Thị Trung Phúc",
+            "8A9": "Phạm Thị Ngọc Mỹ",
+            "9A1": "Ngô Thị Mai",
+            "9A2": "Đặng Thị Lan Anh",
+            "9A3": "Huỳnh Thị Ngọc Nhương",
+            "9A4": "Nguyễn Trọng Tính",
+            "9A5": "Nguyễn Thị Hồng Nhuỵ",
+            "9A6": "Nguyễn Văn Cường",
+            "9A7": "Đặng Thị Chi",
+            "9A8": "Nguyễn Thị Thuý Liễu",
+            "9A9": "Nguyễn Thị Tươi",
+            "9A10": "Lương Hoài Giang"
+        };
+
+        // Khởi tạo Select box
+        function initClassSelect() {
+            const select = document.getElementById('className');
+            for (const className in classData) {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                select.appendChild(option);
+            }
+        }
+
+        // Tự động điền tên GVCN
+        function updateTeacherName() {
+            const className = document.getElementById('className').value;
+            const teacherInput = document.getElementById('teacherName');
+            if (className && classData[className]) {
+                teacherInput.value = classData[className];
+                // Thêm hiệu ứng highlight nhẹ khi đổi tên
+                teacherInput.classList.add('bg-blue-50');
+                setTimeout(() => teacherInput.classList.remove('bg-blue-50'), 500);
+            }
+        }
+
+        // Gọi hàm khởi tạo khi load
+        document.addEventListener('DOMContentLoaded', initClassSelect);
 
         function switchTab(tabId) {
             const submitSec = document.getElementById('submitSection');
