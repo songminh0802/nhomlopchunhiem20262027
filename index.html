@@ -60,21 +60,16 @@
             <p class="text-gray-500 mt-2 text-sm md:text-base">Hệ thống thu thập và quản lý link nhóm Zalo của các lớp</p>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="bg-white shadow-sm mb-6 flex justify-center rounded-b-xl overflow-hidden">
-            <button id="tabSubmitBtn" class="flex-1 py-3 px-4 text-center tab-active focus:outline-none transition-colors duration-200" onclick="switchTab('submit')">
-                <i class="fa-solid fa-paper-plane mr-2"></i>Gửi Link Mới
-            </button>
-            <button id="tabListBtn" class="flex-1 py-3 px-4 text-center tab-inactive focus:outline-none transition-colors duration-200" onclick="switchTab('list')">
-                <i class="fa-solid fa-list mr-2"></i>Danh Sách Lớp
-            </button>
-        </div>
+        <!-- Navigation Tabs Removed -->
 
-        <!-- Tab 1: Submit Form -->
-        <div id="submitSection" class="bg-white rounded-xl shadow-md p-6 md:p-8 transition-opacity duration-300">
-            <form id="submitForm" onsubmit="handleFormSubmit(event)">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+            
+            <!-- Left Column: Submit Form -->
+            <div id="submitSection" class="lg:col-span-4 bg-white rounded-xl shadow-md p-6 h-fit border border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800 mb-5 border-b pb-3"><i class="fa-solid fa-paper-plane text-blue-500 mr-2"></i>Gửi Link Mới</h2>
+                <form id="submitForm" onsubmit="handleFormSubmit(event)">
+                    <div class="mb-5">
                         <label class="block text-sm font-medium text-gray-700 mb-2" for="className">Tên Lớp <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -97,9 +92,8 @@
                             <input type="text" id="teacherName" required placeholder="Nhập họ tên giáo viên" class="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow">
                         </div>
                     </div>
-                </div>
                 
-                <div class="mb-6">
+                <div class="mb-5">
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="zaloLink">Link Zalo Nhóm Lớp <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -110,7 +104,7 @@
                     <p class="text-xs text-gray-500 mt-1.5"><i class="fa-solid fa-circle-info mr-1"></i>Copy link tham gia nhóm Zalo và dán vào đây.</p>
                 </div>
 
-                <div class="mb-8">
+                <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="notes">Ghi chú (Tùy chọn)</label>
                     <textarea id="notes" rows="3" placeholder="Ghi chú thêm nếu có (vd: Nhóm dành riêng cho phụ huynh...)" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"></textarea>
                 </div>
@@ -121,11 +115,11 @@
                     <div id="submitBtnLoader" class="hidden loader ml-2 ease-linear rounded-full border-2 border-t-2 border-white h-5 w-5"></div>
                 </button>
             </form>
-        </div>
+            </div>
 
-        <!-- Tab 2: List -->
-        <div id="listSection" class="hidden bg-white rounded-xl shadow-md p-6 transition-opacity duration-300">
-            <div class="flex justify-between items-center mb-6">
+            <!-- Right Column: List & Stats -->
+            <div id="listSection" class="lg:col-span-8 bg-white rounded-xl shadow-md p-6 border border-gray-100 flex flex-col">
+                <div class="flex justify-between items-center mb-6 border-b pb-3">
                 <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-list-check text-blue-500 mr-2"></i>Danh sách các lớp</h2>
                 <div class="flex gap-2">
                     <button onclick="checkAdmin()" id="adminBtn" class="text-gray-500 hover:bg-gray-100 hover:text-red-500 p-2.5 rounded-full transition-colors focus:outline-none" title="Chế độ Admin">
@@ -277,37 +271,11 @@
             }
         }
 
-        // Gọi hàm khởi tạo khi load
-        document.addEventListener('DOMContentLoaded', initClassSelect);
-
-        function switchTab(tabId) {
-            const submitSec = document.getElementById('submitSection');
-            const listSec = document.getElementById('listSection');
-            const submitBtn = document.getElementById('tabSubmitBtn');
-            const listBtn = document.getElementById('tabListBtn');
-
-            if (tabId === 'submit') {
-                submitSec.classList.remove('hidden');
-                listSec.classList.add('hidden');
-                
-                submitBtn.classList.add('tab-active');
-                submitBtn.classList.remove('tab-inactive');
-                
-                listBtn.classList.remove('tab-active');
-                listBtn.classList.add('tab-inactive');
-            } else {
-                submitSec.classList.add('hidden');
-                listSec.classList.remove('hidden');
-                
-                submitBtn.classList.remove('tab-active');
-                submitBtn.classList.add('tab-inactive');
-                
-                listBtn.classList.add('tab-active');
-                listBtn.classList.remove('tab-inactive');
-                
-                loadLinks(); // Tự động load dữ liệu
-            }
-        }
+        // Tự động load dữ liệu khi khởi tạo
+        document.addEventListener('DOMContentLoaded', () => {
+            initClassSelect();
+            loadLinks();
+        });
 
         function escapeHTML(str) {
             if (!str) return '';
@@ -394,22 +362,10 @@
                 if (res.success) {
                     Toast.fire({ icon: 'success', title: res.message });
                     document.getElementById('submitForm').reset();
+                    document.getElementById('teacherName').value = '';
                     
-                    // Hỏi chuyển tab
-                    Swal.fire({
-                        title: 'Đã lưu thành công!',
-                        text: 'Bạn có muốn chuyển sang xem danh sách lớp không?',
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3b82f6',
-                        cancelButtonColor: '#9ca3af',
-                        confirmButtonText: 'Có, xem danh sách',
-                        cancelButtonText: 'Không, ở lại đây'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            switchTab('list');
-                        }
-                    });
+                    // Tải lại danh sách ngay lập tức
+                    loadLinks();
                 } else {
                     Swal.fire('Lỗi!', res.message, 'error');
                 }
