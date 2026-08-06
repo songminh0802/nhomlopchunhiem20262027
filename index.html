@@ -161,6 +161,34 @@
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-500 h-12 w-12"></div>
                 </div>
             </div>
+
+            <!-- Statistics Section -->
+            <div id="statsSection" class="mt-8 border-t border-gray-100 pt-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-5"><i class="fa-solid fa-chart-pie text-blue-500 mr-2"></i>Thống kê tiến độ nộp Link</h3>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="bg-gray-50 text-gray-700 px-5 py-4 rounded-xl flex-1 flex justify-between items-center shadow-sm border border-gray-100">
+                        <span class="font-medium text-sm">Tổng số lớp:</span>
+                        <span id="statTotal" class="text-2xl font-black">0</span>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-700 px-5 py-4 rounded-xl flex-1 flex justify-between items-center shadow-sm border border-emerald-100">
+                        <span class="font-medium text-sm">Đã nộp:</span>
+                        <span id="statSubmitted" class="text-2xl font-black">0</span>
+                    </div>
+                    <div class="bg-rose-50 text-rose-700 px-5 py-4 rounded-xl flex-1 flex justify-between items-center shadow-sm border border-rose-100">
+                        <span class="font-medium text-sm">Chưa nộp:</span>
+                        <span id="statPending" class="text-2xl font-black">0</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="flex items-center gap-4 mb-3 text-xs text-gray-500 font-medium">
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-sm bg-emerald-500 mr-1.5 shadow-sm"></span> Đã nộp</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-sm bg-white border border-gray-200 mr-1.5 shadow-sm"></span> Chưa nộp</div>
+                    </div>
+                    <div id="statsGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 sm:gap-3">
+                        <!-- Grid items will be rendered here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -455,6 +483,53 @@
             });
             
             tbody.innerHTML = html;
+            
+            // Cập nhật thống kê
+            updateStatistics(data);
+        }
+
+        function updateStatistics(submittedData) {
+            const totalClasses = Object.keys(classData).length;
+            
+            // Dùng Set để lọc các lớp trùng lặp (nếu có nộp nhiều lần)
+            const submittedClasses = new Set();
+            if (submittedData && submittedData.length > 0) {
+                submittedData.forEach(item => {
+                    if (item.className) {
+                        submittedClasses.add(item.className.trim());
+                    }
+                });
+            }
+            
+            const submittedCount = submittedClasses.size;
+            const pendingCount = totalClasses - submittedCount;
+            
+            // Cập nhật các con số
+            document.getElementById('statTotal').textContent = totalClasses;
+            document.getElementById('statSubmitted').textContent = submittedCount;
+            document.getElementById('statPending').textContent = pendingCount;
+            
+            // Render lưới danh sách các lớp
+            const grid = document.getElementById('statsGrid');
+            grid.innerHTML = '';
+            
+            for (const className in classData) {
+                const isSubmitted = submittedClasses.has(className);
+                
+                const item = document.createElement('div');
+                item.className = 'text-center py-2.5 px-1 rounded-lg text-sm font-bold shadow-sm transition-all cursor-default border';
+                item.textContent = className;
+                
+                if (isSubmitted) {
+                    item.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+                    item.title = 'Đã nộp link';
+                } else {
+                    item.classList.add('bg-white', 'text-gray-400', 'border-gray-200');
+                    item.title = 'Chưa nộp link';
+                }
+                
+                grid.appendChild(item);
+            }
         }
 
         // --- Admin Mode ---
