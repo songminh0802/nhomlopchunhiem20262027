@@ -125,7 +125,7 @@
                     <button onclick="checkAdmin()" id="adminBtn" class="text-gray-500 hover:bg-gray-100 hover:text-red-500 p-2.5 rounded-full transition-colors focus:outline-none" title="Chế độ Admin">
                         <i class="fa-solid fa-shield-halved"></i>
                     </button>
-                    <button onclick="loadLinks()" id="refreshBtn" class="text-blue-600 bg-blue-50 hover:bg-blue-100 p-2.5 rounded-full transition-colors focus:outline-none" title="Làm mới dữ liệu">
+                    <button onclick="loadLinks(true)" id="refreshBtn" class="text-blue-600 bg-blue-50 hover:bg-blue-100 p-2.5 rounded-full transition-colors focus:outline-none" title="Làm mới dữ liệu & Đồng bộ Sheet">
                         <i class="fa-solid fa-rotate"></i>
                     </button>
                 </div>
@@ -381,7 +381,7 @@
             }
         }
 
-        async function loadLinks() {
+        async function loadLinks(force = false) {
             const tbody = document.getElementById('linksTableBody');
             const loader = document.getElementById('listLoader');
             const refreshBtn = document.getElementById('refreshBtn');
@@ -391,7 +391,7 @@
             refreshIcon.classList.add('fa-spin');
 
             try {
-                const res = await callAPI('getLinks');
+                const res = await callAPI('getLinks', { force: force });
                 
                 if (res.success) {
                     renderTable(res.data);
