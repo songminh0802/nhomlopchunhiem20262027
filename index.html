@@ -465,13 +465,16 @@
             document.getElementById('statSubmitted').textContent = submittedCount;
             document.getElementById('statPending').textContent = pendingCount;
             
-            // Render lưới danh sách các lớp
+            // Render lưới danh sách các lớp và cập nhật Select Dropdown
             const grid = document.getElementById('statsGrid');
             grid.innerHTML = '';
+            
+            const select = document.getElementById('className');
             
             for (const className in classData) {
                 const isSubmitted = submittedClasses.has(className);
                 
+                // Cập nhật giao diện thống kê lưới
                 const item = document.createElement('div');
                 item.className = 'text-center py-2.5 px-1 rounded-lg text-sm font-bold shadow-sm transition-all cursor-default border';
                 item.textContent = className;
@@ -485,6 +488,25 @@
                 }
                 
                 grid.appendChild(item);
+                
+                // Vô hiệu hóa lựa chọn trong Form nếu lớp đã nộp
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === className) {
+                        if (isSubmitted) {
+                            select.options[i].disabled = true;
+                            select.options[i].text = `${className} (Đã nộp)`;
+                            // Nếu đang được chọn thì reset
+                            if (select.selectedIndex === i) {
+                                select.selectedIndex = 0;
+                                document.getElementById('teacherName').value = '';
+                            }
+                        } else {
+                            select.options[i].disabled = false;
+                            select.options[i].text = className;
+                        }
+                        break;
+                    }
+                }
             }
         }
 
