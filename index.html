@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Link Zalo Lớp</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .loader {
+            border-top-color: #3498db;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tab-active {
+            border-bottom: 2px solid #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        .tab-inactive {
+            color: #6b7280;
+        }
+        .tab-inactive:hover {
+            color: #374151;
+        }
+        /* Custom scrollbar for table container */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Header -->
+        <div class="bg-white rounded-t-xl shadow-sm p-6 mb-1 text-center border-b border-gray-100">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                <i class="fa-solid fa-users-rectangle text-blue-500 mr-3"></i>Link Zalo Chủ Nhiệm
+            </h1>
+            <p class="text-gray-500 mt-2 text-sm md:text-base">Hệ thống thu thập và quản lý link nhóm Zalo của các lớp</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-white shadow-sm mb-6 flex justify-center rounded-b-xl overflow-hidden">
+            <button id="tabSubmitBtn" class="flex-1 py-3 px-4 text-center tab-active focus:outline-none transition-colors duration-200" onclick="switchTab('submit')">
+                <i class="fa-solid fa-paper-plane mr-2"></i>Gửi Link Mới
+            </button>
+            <button id="tabListBtn" class="flex-1 py-3 px-4 text-center tab-inactive focus:outline-none transition-colors duration-200" onclick="switchTab('list')">
+                <i class="fa-solid fa-list mr-2"></i>Danh Sách Lớp
+            </button>
+        </div>
+
+        <!-- Tab 1: Submit Form -->
+        <div id="submitSection" class="bg-white rounded-xl shadow-md p-6 md:p-8 transition-opacity duration-300">
+            <form id="submitForm" onsubmit="handleFormSubmit(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="className">Tên Lớp <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-school text-gray-400"></i>
+                            </div>
+                            <input type="text" id="className" required placeholder="VD: 10A1" class="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="teacherName">Họ tên GVCN <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-chalkboard-user text-gray-400"></i>
+                            </div>
+                            <input type="text" id="teacherName" required placeholder="Nhập họ tên giáo viên" class="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="zaloLink">Link Zalo Nhóm Lớp <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" class="w-5 h-5 opacity-70" alt="Zalo">
+                        </div>
+                        <input type="url" id="zaloLink" required placeholder="https://zalo.me/g/..." class="w-full pl-11 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1.5"><i class="fa-solid fa-circle-info mr-1"></i>Copy link tham gia nhóm Zalo và dán vào đây.</p>
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="notes">Ghi chú (Tùy chọn)</label>
+                    <textarea id="notes" rows="3" placeholder="Ghi chú thêm nếu có (vd: Nhóm dành riêng cho phụ huynh...)" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200 flex justify-center items-center shadow-lg shadow-blue-500/30">
+                    <i id="submitIcon" class="fa-solid fa-paper-plane mr-2"></i>
+                    <span id="submitBtnText">Gửi Link Lớp</span>
+                    <div id="submitBtnLoader" class="hidden loader ml-2 ease-linear rounded-full border-2 border-t-2 border-white h-5 w-5"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Tab 2: List -->
+        <div id="listSection" class="hidden bg-white rounded-xl shadow-md p-6 transition-opacity duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-list-check text-blue-500 mr-2"></i>Danh sách các lớp</h2>
+                <div class="flex gap-2">
+                    <button onclick="checkAdmin()" id="adminBtn" class="text-gray-500 hover:bg-gray-100 hover:text-red-500 p-2.5 rounded-full transition-colors focus:outline-none" title="Chế độ Admin">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </button>
+                    <button onclick="loadLinks()" id="refreshBtn" class="text-blue-600 bg-blue-50 hover:bg-blue-100 p-2.5 rounded-full transition-colors focus:outline-none" title="Làm mới dữ liệu">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="relative overflow-x-auto rounded-xl border border-gray-200 custom-scrollbar">
+                <table class="w-full text-sm text-left text-gray-600 whitespace-nowrap">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-semibold">Lớp</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Giáo viên</th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-center">Link Zalo</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Ghi chú</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Thời gian</th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-right admin-col hidden">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="linksTableBody" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                Nhấn nút "Làm mới" hoặc chuyển tab để tải dữ liệu.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="listLoader" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex justify-center items-center z-10">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-500 h-12 w-12"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inject Script URL từ Backend -->
+    <script>
+        // Lấy URL Web App do GAS tiêm vào qua template.evaluate()
+        const SCRIPT_URL = '<?= scriptUrl ?>'; 
+    </script>
+
+    <script>
+        // --- UI Utilities ---
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+
+        let isAdmin = false;
+        let adminPassword = sessionStorage.getItem('adminPassword') || '';
+
+        function switchTab(tabId) {
+            const submitSec = document.getElementById('submitSection');
+            const listSec = document.getElementById('listSection');
+            const submitBtn = document.getElementById('tabSubmitBtn');
+            const listBtn = document.getElementById('tabListBtn');
+
+            if (tabId === 'submit') {
+                submitSec.classList.remove('hidden');
+                listSec.classList.add('hidden');
+                
+                submitBtn.classList.add('tab-active');
+                submitBtn.classList.remove('tab-inactive');
+                
+                listBtn.classList.remove('tab-active');
+                listBtn.classList.add('tab-inactive');
+            } else {
+                submitSec.classList.add('hidden');
+                listSec.classList.remove('hidden');
+                
+                submitBtn.classList.remove('tab-active');
+                submitBtn.classList.add('tab-inactive');
+                
+                listBtn.classList.add('tab-active');
+                listBtn.classList.remove('tab-inactive');
+                
+                loadLinks(); // Tự động load dữ liệu
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.toString().replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        // --- API Integration (Theo yêu cầu Skill: Fetch POST payload JSON) ---
+        async function callAPI(action, data = {}) {
+            try {
+                // Nếu chạy trong môi trường test local (không có url tiêm) thì cảnh báo
+                if (!SCRIPT_URL || SCRIPT_URL === '<?= scriptUrl ?>') {
+                    console.warn("Đang chạy ở môi trường Local/Mock. Sẽ gọi thử google.script.run nếu có.");
+                    return await callGasLocal(action, data);
+                }
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action, data }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } // GAS cors workaround
+                });
+                
+                return await response.json();
+            } catch (error) {
+                console.error("Fetch API Error:", error);
+                // Fallback to google.script.run for safety if fetch fails in same origin
+                return await callGasLocal(action, data);
+            }
+        }
+
+        // Fallback an toàn nếu App được nhúng bằng iFrame hoặc google.script.run khả dụng
+        function callGasLocal(action, data) {
+            return new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined' && google.script && google.script.run) {
+                    google.script.run
+                        .withSuccessHandler(res => resolve(JSON.parse(res)))
+                        .withFailureHandler(err => reject(err))
+                        .doPost({ postData: { contents: JSON.stringify({action, data}) } }); 
+                        // Note: Mocking doPost e object is tricky, better to call a direct method. 
+                        // But since we built a Fetch Router, we try our best.
+                        // Actually, let's bypass by doing fetch only. GAS will handle fetch to its URL.
+                } else {
+                    reject(new Error("Môi trường không hỗ trợ kết nối tới Server"));
+                }
+            });
+        }
+
+        // --- Core Functions ---
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const submitBtnLoader = document.getElementById('submitBtnLoader');
+            const submitIcon = document.getElementById('submitIcon');
+            
+            const className = document.getElementById('className').value.trim();
+            const teacherName = document.getElementById('teacherName').value.trim();
+            const zaloLink = document.getElementById('zaloLink').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+
+            if (!className || !teacherName || !zaloLink) {
+                Toast.fire({ icon: 'warning', title: 'Vui lòng điền đủ thông tin bắt buộc' });
+                return;
+            }
+
+            // Trạng thái Loading
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            submitBtnText.textContent = 'Đang gửi...';
+            submitBtnLoader.classList.remove('hidden');
+            submitIcon.classList.add('hidden');
+
+            try {
+                const res = await callAPI('submitLink', { className, teacherName, zaloLink, notes });
+                
+                if (res.success) {
+                    Toast.fire({ icon: 'success', title: res.message });
+                    document.getElementById('submitForm').reset();
+                    
+                    // Hỏi chuyển tab
+                    Swal.fire({
+                        title: 'Đã lưu thành công!',
+                        text: 'Bạn có muốn chuyển sang xem danh sách lớp không?',
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3b82f6',
+                        cancelButtonColor: '#9ca3af',
+                        confirmButtonText: 'Có, xem danh sách',
+                        cancelButtonText: 'Không, ở lại đây'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            switchTab('list');
+                        }
+                    });
+                } else {
+                    Swal.fire('Lỗi!', res.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('Lỗi kết nối!', 'Không thể gửi dữ liệu: ' + err.message, 'error');
+            } finally {
+                // Khôi phục nút bấm
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                submitBtnText.textContent = 'Gửi Link Lớp';
+                submitBtnLoader.classList.add('hidden');
+                submitIcon.classList.remove('hidden');
+            }
+        }
+
+        async function loadLinks() {
+            const tbody = document.getElementById('linksTableBody');
+            const loader = document.getElementById('listLoader');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const refreshIcon = refreshBtn.querySelector('i');
+            
+            loader.classList.remove('hidden');
+            refreshIcon.classList.add('fa-spin');
+
+            try {
+                const res = await callAPI('getLinks');
+                
+                if (res.success) {
+                    renderTable(res.data);
+                } else {
+                    Toast.fire({ icon: 'error', title: res.message || 'Lỗi khi tải dữ liệu' });
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Lỗi tải dữ liệu. Vui lòng thử lại.</td></tr>`;
+                }
+            } catch (err) {
+                Toast.fire({ icon: 'error', title: 'Lỗi kết nối đến Server' });
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Lỗi kết nối: ${err.message}</td></tr>`;
+            } finally {
+                loader.classList.add('hidden');
+                refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('linksTableBody');
+            
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500"><i class="fa-solid fa-inbox text-4xl mb-3 block text-gray-300"></i>Chưa có dữ liệu nào.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            data.forEach(item => {
+                html += `
+                    <tr class="bg-white border-b hover:bg-blue-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-gray-900">${escapeHTML(item.className)}</td>
+                        <td class="px-6 py-4">${escapeHTML(item.teacherName)}</td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="${escapeHTML(item.zaloLink)}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white rounded-full text-xs font-semibold transition-colors shadow-sm">
+                                <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i>Tham gia
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 text-xs whitespace-normal max-w-xs">${escapeHTML(item.notes)}</td>
+                        <td class="px-6 py-4 text-gray-400 text-xs">${escapeHTML(item.timestamp)}</td>
+                        <td class="px-6 py-4 text-right admin-col ${isAdmin ? '' : 'hidden'}">
+                            <button onclick="deleteRow(${item.id})" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors focus:outline-none" title="Xóa">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // --- Admin Mode ---
+        async function checkAdmin() {
+            if (isAdmin) {
+                // Thoát admin
+                isAdmin = false;
+                adminPassword = '';
+                sessionStorage.removeItem('adminPassword');
+                toggleAdminCols();
+                Toast.fire({ icon: 'info', title: 'Đã thoát chế độ Quản trị' });
+                return;
+            }
+
+            const { value: password } = await Swal.fire({
+                title: 'Nhập mật khẩu quản trị',
+                input: 'password',
+                inputPlaceholder: 'Mật khẩu',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (password) {
+                adminPassword = password;
+                isAdmin = true;
+                sessionStorage.setItem('adminPassword', password);
+                toggleAdminCols();
+                Toast.fire({ icon: 'success', title: 'Đã bật chế độ Quản trị (Xóa)' });
+            }
+        }
+
+        function toggleAdminCols() {
+            const cols = document.querySelectorAll('.admin-col');
+            cols.forEach(col => {
+                if (isAdmin) {
+                    col.classList.remove('hidden');
+                } else {
+                    col.classList.add('hidden');
+                }
+            });
+        }
+
+        async function deleteRow(id) {
+            const result = await Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Dữ liệu sau khi xóa sẽ không thể phục hồi!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (result.isConfirmed) {
+                // Hiển thị loading overlay
+                Swal.fire({
+                    title: 'Đang xóa...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                try {
+                    const res = await callAPI('deleteLink', { id: id, adminPassword: adminPassword });
+                    
+                    if (res.success) {
+                        Swal.fire('Đã xóa!', res.message, 'success');
+                        loadLinks(); // Tải lại bảng
+                    } else {
+                        Swal.fire('Lỗi!', res.message, 'error');
+                        // Nếu sai pass, tự thoát admin
+                        if (res.message.includes('mật khẩu')) {
+                            isAdmin = false;
+                            sessionStorage.removeItem('adminPassword');
+                            toggleAdminCols();
+                        }
+                    }
+                } catch (err) {
+                    Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ', 'error');
+                }
+            }
+        }
+
+        // Initialize admin state on load
+        if (adminPassword) {
+            // Không set true ngay, để user có thể click icon admin bật, hoặc cứ bật tạm UI
+            // isAdmin = true; toggleAdminCols();
+        }
+    </script>
+</body>
+</html>
